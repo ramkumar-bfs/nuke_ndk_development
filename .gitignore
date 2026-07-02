@@ -21,11 +21,11 @@ Makefile
 *.sln.docstates
 
 # Compiled binaries
-*.dll
+# *.dll
 *.lib
 *.exp
 *.pdb
-*.so
+# *.so
 *.dylib
 
 # OS files
