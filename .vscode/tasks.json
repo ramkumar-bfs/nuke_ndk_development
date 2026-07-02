@@ -2,10 +2,10 @@
 	"version": "2.0.0",
 	"inputs": [
 		{
-			"id": "nukeRoot",
+			"id": "nukeNdkRoot",
 			"type": "promptString",
-			"description": "NUKE_ROOT path",
-			"default": "C:/Program Files/Nuke16.0v1"
+			"description": "NUKE_NDK_ROOT path",
+			"default": "D:/deps/NUKE_NDK"
 		},
 		{
 			"id": "nukeVersion",
@@ -39,7 +39,7 @@
 			},
 			"options": {
 				"env": {
-					"NUKE_ROOT": "${input:nukeRoot}",
+					"NUKE_NDK_ROOT": "${input:nukeNdkRoot}",
 					"NUKE_VERSION": "${input:nukeVersion}"
 				}
 			},

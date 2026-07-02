@@ -11,7 +11,11 @@ This project is a starter template for building a custom Nuke node with the NDK 
 
 ## Prerequisites
 
-- Nuke with NDK headers installed.
+- NDK dependencies copied under a shared folder in this layout.
+- Windows include path: `<NUKE_NDK_ROOT>/winx64/<NUKE_VERSION>/include`
+- Windows lib path: `<NUKE_NDK_ROOT>/winx64/<NUKE_VERSION>/lib`
+- Linux include path: `<NUKE_NDK_ROOT>/linux/<NUKE_VERSION>/include`
+- Linux lib path: `<NUKE_NDK_ROOT>/linux/<NUKE_VERSION>/lib`
 - CMake 3.20+
 - A C++ compiler toolchain:
   - Windows: Visual Studio Build Tools
@@ -19,14 +23,12 @@ This project is a starter template for building a custom Nuke node with the NDK 
 
 ## Build on Windows
 
-1. Set Nuke path once per terminal session:
+1. Set NDK root and version once per terminal session:
 
    ```powershell
-   $env:NUKE_ROOT = "C:/Program Files/Nuke16.0v1"
+   $env:NUKE_NDK_ROOT = "D:/deps/NUKE_NDK"
    $env:NUKE_VERSION = "Nuke16.0v1"
    ```
-
-   If `NUKE_VERSION` is omitted, the build script derives it from the last folder in `NUKE_ROOT`.
 
 2. Configure and build:
 
@@ -41,14 +43,12 @@ This project is a starter template for building a custom Nuke node with the NDK 
 
 ## Build on Linux
 
-1. Set Nuke path once per terminal session:
+1. Set NDK root and version once per terminal session:
 
    ```bash
-   export NUKE_ROOT="/opt/Nuke16.0v1"
+   export NUKE_NDK_ROOT="/opt/NUKE_NDK"
    export NUKE_VERSION="Nuke16.0v1"
    ```
-
-   If `NUKE_VERSION` is omitted, the build script derives it from the last folder in `NUKE_ROOT`.
 
 2. Configure and build:
 

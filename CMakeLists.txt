@@ -6,27 +6,43 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Set this to your Nuke install root if not provided by environment.
-# Example Windows path: C:/Program Files/Nuke16.0v1
-set(NUKE_ROOT "$ENV{NUKE_ROOT}" CACHE PATH "Path to Nuke installation root")
+# Example path: D:/deps/NUKE_NDK
+set(NUKE_NDK_ROOT "$ENV{NUKE_NDK_ROOT}" CACHE PATH "Path to shared Nuke NDK dependency root")
 set(NUKE_VERSION "$ENV{NUKE_VERSION}" CACHE STRING "Nuke version folder name used in plugin output paths")
 
-if(NOT NUKE_ROOT)
-  message(FATAL_ERROR "NUKE_ROOT is not set. Set env var NUKE_ROOT or pass -DNUKE_ROOT=... to CMake.")
+if(NOT NUKE_NDK_ROOT)
+  message(FATAL_ERROR "NUKE_NDK_ROOT is not set. Set env var NUKE_NDK_ROOT or pass -DNUKE_NDK_ROOT=... to CMake.")
 endif()
 
 if(NOT NUKE_VERSION)
-  get_filename_component(NUKE_VERSION "${NUKE_ROOT}" NAME)
+  message(FATAL_ERROR "NUKE_VERSION is not set. Set env var NUKE_VERSION or pass -DNUKE_VERSION=... to CMake.")
 endif()
 
-set(NUKE_INCLUDE_DIR "${NUKE_ROOT}/include")
+if(WIN32)
+  set(NUKE_OS_TYPE "winx64")
+elseif(UNIX AND NOT APPLE)
+  set(NUKE_OS_TYPE "linux")
+else()
+  message(FATAL_ERROR "Unsupported platform for NUKE_NDK layout. Expected Windows or Linux.")
+endif()
+
+set(NUKE_DEP_ROOT "${NUKE_NDK_ROOT}/${NUKE_OS_TYPE}/${NUKE_VERSION}")
+set(NUKE_INCLUDE_DIR "${NUKE_DEP_ROOT}/include")
+set(NUKE_LIB_DIR "${NUKE_DEP_ROOT}/lib")
+
 if(NOT EXISTS "${NUKE_INCLUDE_DIR}/DDImage/Iop.h")
-  message(FATAL_ERROR "Could not find NDK headers under ${NUKE_INCLUDE_DIR}. Check NUKE_ROOT.")
+  message(FATAL_ERROR "Could not find NDK headers under ${NUKE_INCLUDE_DIR}. Check NUKE_NDK_ROOT/os_type/NUKE_VERSION layout.")
+endif()
+
+if(NOT EXISTS "${NUKE_LIB_DIR}")
+  message(FATAL_ERROR "Could not find NDK libraries under ${NUKE_LIB_DIR}. Check NUKE_NDK_ROOT/os_type/NUKE_VERSION layout.")
 endif()
 
 file(GLOB NODE_SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_library(PassThroughLite MODULE ${NODE_SOURCES})
 
 target_include_directories(PassThroughLite PRIVATE "${NUKE_INCLUDE_DIR}" include)
+target_link_directories(PassThroughLite PRIVATE "${NUKE_LIB_DIR}")
 if(WIN32)
   target_compile_definitions(PassThroughLite PRIVATE NOMINMAX _CRT_SECURE_NO_WARNINGS)
 endif()
@@ -67,5 +83,7 @@ else()
 endif()
 
 message(STATUS "Nuke version folder: ${NUKE_VERSION}")
+message(STATUS "Nuke dependency include dir: ${NUKE_INCLUDE_DIR}")
+message(STATUS "Nuke dependency lib dir: ${NUKE_LIB_DIR}")
 message(STATUS "Plugin test output: ${PLUGIN_OUTPUT_DIR}")
 message(STATUS "Plugin package output: ${PACKAGE_PLUGIN_DIR}")
