@@ -3,11 +3,13 @@
 
 using namespace DD::Image;
 
+static const char kPassThroughLiteClass[] = "PassThroughLite";
+
 class PassThroughLite : public Iop {
 public:
     explicit PassThroughLite(Node* node) : Iop(node) {}
 
-    const char* Class() const override { return "PassThroughLite"; }
+    const char* Class() const override { return kPassThroughLiteClass; }
     const char* node_help() const override {
         return "Minimal custom NDK node that forwards pixels from input to output.";
     }
@@ -35,4 +37,4 @@ public:
     static const Iop::Description d;
 };
 
-const Iop::Description PassThroughLite::d("Filter/PassThroughLite", PassThroughLite::build);
+const Iop::Description PassThroughLite::d(kPassThroughLiteClass, "Filter/PassThroughLite", PassThroughLite::build);
