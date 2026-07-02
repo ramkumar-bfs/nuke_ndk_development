@@ -27,7 +27,7 @@ This project is a starter template for building a custom Nuke node with the NDK 
 
    ```powershell
    $env:NUKE_NDK_ROOT = "D:/deps/NUKE_NDK"
-   $env:NUKE_VERSION = "Nuke16.0v1"
+   $env:NUKE_VERSION = "16.0v1"
    ```
 
 2. Configure and build:
@@ -39,6 +39,7 @@ This project is a starter template for building a custom Nuke node with the NDK 
 3. Result plugin path:
 
    - `build/plugin/Windows/Nuke16.0v1/PassThroughLite.dll`
+   - `build/plugin/Windows/16.0v1/PassThroughLite.dll`
    - Packaged folder: `build/package/Windows-x86_64/` (name can vary by generator/arch)
 
 ## Build on Linux
@@ -47,7 +48,7 @@ This project is a starter template for building a custom Nuke node with the NDK 
 
    ```bash
    export NUKE_NDK_ROOT="/opt/NUKE_NDK"
-   export NUKE_VERSION="Nuke16.0v1"
+   export NUKE_VERSION="16.0v1"
    ```
 
 2. Configure and build:
@@ -58,7 +59,7 @@ This project is a starter template for building a custom Nuke node with the NDK 
 
 3. Result plugin path:
 
-   - `build/plugin/Linux/Nuke16.0v1/PassThroughLite.so`
+   - `build/plugin/Linux/16.0v1/PassThroughLite.so`
    - Packaged folder: `build/package/Linux-x86_64/` (name can vary by distro/arch)
 
 ## Load in Nuke
@@ -66,7 +67,7 @@ This project is a starter template for building a custom Nuke node with the NDK 
 Set `NUKE_PATH` to include the plugin output folder:
 
 ```powershell
-$env:NUKE_PATH = "$PWD/build/plugin/Windows/Nuke16.0v1"
+$env:NUKE_PATH = "$PWD/build/plugin/Windows/16.0v1"
 ```
 
 Then launch Nuke from that terminal. The node appears under:
@@ -76,7 +77,7 @@ Then launch Nuke from that terminal. The node appears under:
 Linux example:
 
 ```bash
-export NUKE_PATH="$PWD/build/plugin/Linux/Nuke16.0v1:${NUKE_PATH}"
+export NUKE_PATH="$PWD/build/plugin/Linux/16.0v1:${NUKE_PATH}"
 ```
 
 To deploy to another machine, copy the platform-specific folder under `build/package/` and

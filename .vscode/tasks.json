@@ -11,7 +11,7 @@
 			"id": "nukeVersion",
 			"type": "promptString",
 			"description": "NUKE_VERSION folder name",
-			"default": "Nuke16.0v1"
+			"default": "16.0v1"
 		}
 	],
 	"tasks": [

@@ -7,7 +7,7 @@ if [[ -z "${NUKE_NDK_ROOT:-}" ]]; then
 fi
 
 if [[ -z "${NUKE_VERSION:-}" ]]; then
-  echo "NUKE_VERSION is not set. Example: export NUKE_VERSION='Nuke16.0v1'" >&2
+  echo "NUKE_VERSION is not set. Example: export NUKE_VERSION='16.0v1'" >&2
   exit 1
 fi
 nuke_version="${NUKE_VERSION}"

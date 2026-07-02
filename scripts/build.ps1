@@ -5,7 +5,7 @@ if (-not $env:NUKE_NDK_ROOT) {
 }
 
 if (-not $env:NUKE_VERSION) {
-    throw "NUKE_VERSION is not set. Example: `$env:NUKE_VERSION='Nuke16.0v1'"
+    throw "NUKE_VERSION is not set. Example: `$env:NUKE_VERSION='16.0v1'"
 }
 
 $nukeVersion = $env:NUKE_VERSION
