@@ -1,0 +1,54 @@
+{
+	"version": "2.0.0",
+	"inputs": [
+		{
+			"id": "nukeRoot",
+			"type": "promptString",
+			"description": "NUKE_ROOT path",
+			"default": "C:/Program Files/Nuke16.0v1"
+		},
+		{
+			"id": "nukeVersion",
+			"type": "promptString",
+			"description": "NUKE_VERSION folder name",
+			"default": "Nuke16.0v1"
+		}
+	],
+	"tasks": [
+		{
+			"label": "Build Nuke Plugin",
+			"type": "shell",
+			"command": "bash",
+			"args": [
+				"scripts/build.sh"
+			],
+			"windows": {
+				"command": "powershell",
+				"args": [
+					"-ExecutionPolicy",
+					"Bypass",
+					"-File",
+					"scripts/build.ps1"
+				]
+			},
+			"linux": {
+				"command": "bash",
+				"args": [
+					"scripts/build.sh"
+				]
+			},
+			"options": {
+				"env": {
+					"NUKE_ROOT": "${input:nukeRoot}",
+					"NUKE_VERSION": "${input:nukeVersion}"
+				}
+			},
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
