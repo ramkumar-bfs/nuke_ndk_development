@@ -46,8 +46,29 @@
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": {
-				"kind": "build",
-				"isDefault": true
+				"kind": "build"
+			}
+		},
+		{
+			"label": "Build Nuke Plugin (Debug Symbols)",
+			"type": "shell",
+			"linux": {
+				"command": "bash",
+				"args": [
+					"-lc",
+					"cmake -S . -B build-debug -DNUKE_NDK_ROOT=\"$NUKE_NDK_ROOT\" -DNUKE_VERSION=\"$NUKE_VERSION\" -DCMAKE_BUILD_TYPE=Debug && cmake --build build-debug --target package_plugin"
+				]
+			},
+			"options": {
+				"env": {
+					"NUKE_NDK_ROOT": "${input:nukeNdkRoot}",
+					"NUKE_VERSION": "${input:nukeVersion}"
+				}
+			},
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": {
+				"kind": "build"
 			}
 		}
 	]

@@ -2,6 +2,9 @@
 /build/*
 !/build/plugin/
 !/build/plugin/**
+/build-debug/*
+!/build-debug/plugin/
+!/build-debug/plugin/**
 /out/
 /bin/
 /obj/

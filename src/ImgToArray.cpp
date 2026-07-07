@@ -1,4 +1,4 @@
-// ImageToArray.cpp
+// ImgToArray.cpp
 // NDK node that reads scanlines and stores them in a shared pixel buffer.
 // Python then reads the buffer and sends it to ComfyUI.
 //
@@ -21,6 +21,7 @@
 #include <string>
 #include <cstring>
 #include <cstdio>
+#include <cstdint>
 
 using namespace DD::Image;
 
@@ -45,20 +46,20 @@ static PixelStore* g_store = nullptr;   // simplistic single-node example
 
 // ─── Node class ───────────────────────────────────────────────────────────────
 
-class ImageToArray : public Iop {
+class ImgToArray : public Iop {
     PixelStore* _store;
     // UI knob to expose the raw pointer value so Python can read it.
     // (A Double_knob large enough to hold a 64-bit pointer.)
     double _ptrKnob;
 
 public:
-    ImageToArray(Node* node) : Iop(node), _store(new PixelStore()), _ptrKnob(0.0) {}
+    ImgToArray(Node* node) : Iop(node), _store(new PixelStore()), _ptrKnob(0.0) {}
 
-    ~ImageToArray() override { delete _store; }
+    ~ImgToArray() override { delete _store; }
 
     // ── DDImage boilerplate ──────────────────────────────────────────────────
 
-    const char* Class()       const override { return "ImageToArray"; }
+    const char* Class()       const override { return "ImgToArray"; }
     const char* node_help()   const override {
         return "Buffers all scanlines into a float64 RGBA array that Python "
                "can convert to a NumPy array and forward to a ComfyUI API.";
@@ -127,6 +128,6 @@ public:
 
 // ─── Registration ─────────────────────────────────────────────────────────────
 
-static Iop* build(Node* node) { return new NukeWrapper(new ImageToArray(node)); }
+static Iop* build(Node* node) { return new NukeWrapper(new ImgToArray(node)); }
 
-const Iop::Description ImageToArray::d("ImageToArray", "Image/ImageToArray", build);
+const Iop::Description ImgToArray::d("ImgToArray", "Image/ImgToArray", build);
