@@ -5,13 +5,13 @@
 			"id": "nukeNdkRoot",
 			"type": "promptString",
 			"description": "NUKE_NDK_ROOT path",
-			"default": "D:/deps/NUKE_NDK"
+			"default": "${workspaceFolder}/nuke_ndk"
 		},
 		{
 			"id": "nukeVersion",
 			"type": "promptString",
 			"description": "NUKE_VERSION folder name",
-			"default": "16.0v1"
+			"default": "16.1v2"
 		}
 	],
 	"tasks": [

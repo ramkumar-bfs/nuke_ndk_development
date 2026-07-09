@@ -1,0 +1,70 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Nuke: Launch with GDB (Debug Plugin)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${input:nukeExecutable}",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [
+        {
+          "name": "NUKE_PATH",
+          "value": "${workspaceFolder}/build-debug/plugin/Linux/${input:nukeVersion}:${env:NUKE_PATH}"
+        }
+      ],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "/usr/bin/gdb",
+      "setupCommands": [
+        {
+          "description": "Enable GDB pretty-printing",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Load workspace GDB setup",
+          "text": "source ${workspaceFolder}/.gdbinit",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "Build Nuke Plugin (Debug Symbols)"
+    },
+    {
+      "name": "Nuke: Attach GDB to Running Process",
+      "type": "cppdbg",
+      "request": "attach",
+      "processId": "${command:pickProcess}",
+      "cwd": "${workspaceFolder}",
+      "MIMode": "gdb",
+      "miDebuggerPath": "/usr/bin/gdb",
+      "setupCommands": [
+        {
+          "description": "Enable GDB pretty-printing",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Load workspace GDB setup",
+          "text": "source ${workspaceFolder}/.gdbinit",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "nukeExecutable",
+      "type": "promptString",
+      "description": "Absolute path to Nuke executable (for example /opt/Nuke16.1v2/Nuke16.1)"
+    },
+    {
+      "id": "nukeVersion",
+      "type": "promptString",
+      "description": "NUKE_VERSION folder used by debug plugin output",
+      "default": "16.1v2"
+    }
+  ]
+}
