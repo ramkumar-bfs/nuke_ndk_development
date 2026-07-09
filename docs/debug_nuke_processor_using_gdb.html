@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Debug Nuke Plugin with GDB - Beginner Guide</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --ink: #1c2430;
+      --muted: #4f5d73;
+      --border: #d7dfea;
+      --brand: #0f4c81;
+      --brand-soft: #e8f1fb;
+      --ok: #0d7a3f;
+      --warn: #8a5b00;
+      --code-bg: #0f172a;
+      --code-ink: #dbeafe;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top right, #eef5ff 0%, var(--bg) 45%);
+      color: var(--ink);
+      line-height: 1.65;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 28px 18px 80px;
+    }
+
+    header {
+      background: linear-gradient(130deg, #0f4c81, #1f6aa6);
+      color: #fff;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 8px 28px rgba(15, 76, 129, 0.2);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin: 0;
+      opacity: 0.92;
+    }
+
+    h2 {
+      margin-top: 34px;
+      font-size: 1.45rem;
+      color: var(--brand);
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      margin-top: 24px;
+      color: #0b3f6b;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-top: 16px;
+      box-shadow: 0 3px 10px rgba(21, 34, 56, 0.05);
+    }
+
+    .callout {
+      border-left: 4px solid var(--brand);
+      background: var(--brand-soft);
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+
+    .tip {
+      border-left: 4px solid var(--ok);
+      background: #eaf7ef;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+
+    .warning {
+      border-left: 4px solid var(--warn);
+      background: #fff5e8;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+
+    code {
+      background: #edf2f9;
+      border: 1px solid #dbe4f0;
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-family: Consolas, Menlo, Monaco, monospace;
+      font-size: 0.95em;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-ink);
+      border-radius: 10px;
+      padding: 14px;
+      overflow-x: auto;
+      border: 1px solid #1e293b;
+    }
+
+    pre code {
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: inherit;
+      font-size: 0.92rem;
+    }
+
+    ul, ol {
+      padding-left: 22px;
+    }
+
+    li { margin: 8px 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 20px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+    }
+
+    th {
+      background: #f0f5fb;
+      color: #153a5d;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    footer {
+      margin-top: 36px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Debug Nuke Plugin with GDB</h1>
+      <p class="subtitle">Beginner-friendly, end-to-end workflow for debugging C++ NDK plugins in VS Code on Linux.</p>
+    </header>
+
+    <section class="card">
+      <h2>1. What You Are Debugging</h2>
+      <p>
+        A Nuke NDK plugin is a shared library (<code>.so</code>) loaded by the Nuke application at runtime.
+        That means you do <strong>not</strong> debug a standalone executable for the plugin itself.
+      </p>
+      <div class="callout">
+        <strong>Key idea:</strong> GDB must debug the <strong>Nuke process</strong>, then break inside your plugin methods (for example <code>engine()</code>, <code>_validate()</code>).
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Prerequisites Checklist</h2>
+      <ul>
+        <li>Nuke is installed and you know the absolute path of the Nuke executable.</li>
+        <li>GDB is installed: <code>gdb --version</code></li>
+        <li>NDK files exist under: <code>nuke_ndk/linux/&lt;NUKE_VERSION&gt;/include</code> and <code>.../lib</code></li>
+        <li>Build task creates debug symbols (<code>-DCMAKE_BUILD_TYPE=Debug</code>).</li>
+      </ul>
+      <div class="tip">
+        In this workspace, debug build output is expected under:
+        <code>build-debug/plugin/Linux/&lt;NUKE_VERSION&gt;/</code>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Debug Architecture in This Workspace</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>.vscode/tasks.json</code></td>
+            <td>Builds plugin with debug symbols.</td>
+          </tr>
+          <tr>
+            <td><code>.vscode/launch.json</code></td>
+            <td>Launches or attaches GDB to Nuke process.</td>
+          </tr>
+          <tr>
+            <td><code>.gdbinit</code></td>
+            <td>Sets pending breakpoints and useful GDB defaults.</td>
+          </tr>
+          <tr>
+            <td><code>NUKE_PATH</code></td>
+            <td>Tells Nuke where to load your built plugin from.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>4. Build the Plugin in Debug Mode</h2>
+      <p>Use VS Code task or run command manually.</p>
+      <h3>Option A: VS Code Task</h3>
+      <ol>
+        <li>Open Command Palette.</li>
+        <li>Run task: <strong>Build Nuke Plugin (Debug Symbols)</strong>.</li>
+      </ol>
+
+      <h3>Option B: Terminal Command</h3>
+      <pre><code>cd /path/to/your/workspace
+export NUKE_NDK_ROOT="$PWD/nuke_ndk"
+export NUKE_VERSION="16.1v2"
+cmake -S . -B build-debug -DNUKE_NDK_ROOT="$NUKE_NDK_ROOT" -DNUKE_VERSION="$NUKE_VERSION" -DCMAKE_BUILD_TYPE=Debug
+cmake --build build-debug --target package_plugin -j</code></pre>
+
+      <h3>Verify Symbols</h3>
+      <pre><code>file build-debug/plugin/Linux/16.1v2/PassThroughLite.so</code></pre>
+      <p class="small">You should see text similar to <code>with debug_info, not stripped</code>.</p>
+    </section>
+
+    <section class="card">
+      <h2>5. Launch Debug Flow (Recommended for Beginners)</h2>
+      <ol>
+        <li>Set breakpoints in plugin code (<code>engine()</code>, <code>_validate()</code>, etc.).</li>
+        <li>Open VS Code Run and Debug.</li>
+        <li>Select <strong>Nuke: Launch with GDB (Debug Plugin)</strong>.</li>
+        <li>Enter Nuke executable path when prompted (example: <code>/opt/Nuke16.1v2/Nuke16.1</code>).</li>
+        <li>Wait for Nuke to open under debugger.</li>
+        <li>Create or run the node in Nuke so plugin code executes.</li>
+      </ol>
+      <div class="callout">
+        If breakpoint circles look unresolved at startup, that is normal.
+        Your plugin symbols bind after the shared library is loaded.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>6. Attach Debug Flow (When Nuke Is Already Open)</h2>
+      <ol>
+        <li>Start Nuke manually first.</li>
+        <li>In VS Code, choose <strong>Nuke: Attach GDB to Running Process</strong>.</li>
+        <li>Pick the Nuke process ID.</li>
+        <li>Trigger your node execution in Nuke.</li>
+        <li>GDB stops at plugin breakpoints when reached.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>7. Core GDB Controls You Will Use</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>VS Code</th>
+            <th>GDB Equivalent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Continue</td>
+            <td>Continue button</td>
+            <td><code>continue</code></td>
+          </tr>
+          <tr>
+            <td>Step over</td>
+            <td>Step Over</td>
+            <td><code>next</code></td>
+          </tr>
+          <tr>
+            <td>Step into</td>
+            <td>Step Into</td>
+            <td><code>step</code></td>
+          </tr>
+          <tr>
+            <td>Finish function</td>
+            <td>Step Out</td>
+            <td><code>finish</code></td>
+          </tr>
+          <tr>
+            <td>Print variable</td>
+            <td>Debug Console / Watch</td>
+            <td><code>print varName</code></td>
+          </tr>
+          <tr>
+            <td>Backtrace</td>
+            <td>Call Stack panel</td>
+            <td><code>bt</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>8. Typical First Debug Session</h2>
+      <ol>
+        <li>Put a breakpoint at the first line of <code>engine()</code>.</li>
+        <li>Launch with GDB config.</li>
+        <li>In Nuke, add your node to the graph and force evaluation.</li>
+        <li>When paused, inspect values (<code>y</code>, <code>x</code>, <code>r</code>, channels).</li>
+        <li>Step over one scanline copy loop and watch row data changes.</li>
+        <li>Continue until you confirm expected frame behavior.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>9. Troubleshooting</h2>
+
+      <h3>Breakpoint never hits</h3>
+      <ul>
+        <li>Confirm plugin loaded from debug output path in <code>NUKE_PATH</code>.</li>
+        <li>Confirm node is actually used in current script graph.</li>
+        <li>Rebuild debug binary and verify <code>with debug_info</code>.</li>
+      </ul>
+
+      <h3>Symbols missing or optimized behavior</h3>
+      <ul>
+        <li>Make sure build type is <code>Debug</code>.</li>
+        <li>Delete old build dir if needed and reconfigure.</li>
+      </ul>
+
+      <h3>GDB safe-path warning for .gdbinit</h3>
+      <p>This is normal security behavior. Optional fix:</p>
+      <pre><code>echo 'add-auto-load-safe-path /absolute/path/to/workspace/.gdbinit' >> ~/.gdbinit</code></pre>
+
+      <h3>Nuke starts but plugin does not appear</h3>
+      <ul>
+        <li>Verify plugin path exists and has <code>.so</code> file.</li>
+        <li>Verify node registration string and menu path in plugin source.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>10. Practical Tips for Beginners</h2>
+      <ul>
+        <li>Start by debugging one method only (usually <code>engine()</code>).</li>
+        <li>Use small test images for faster iteration.</li>
+        <li>Inspect call stack whenever behavior is surprising.</li>
+        <li>Prefer launch mode first; use attach mode later.</li>
+        <li>Keep one known-good Nuke script for repeatable tests.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>11. Quick Start Summary</h2>
+      <ol>
+        <li>Build debug plugin.</li>
+        <li>Run <strong>Nuke: Launch with GDB (Debug Plugin)</strong>.</li>
+        <li>Add/use node in Nuke.</li>
+        <li>Hit breakpoint and inspect state.</li>
+        <li>Step and verify pixel logic.</li>
+      </ol>
+    </section>
+
+    <footer>
+      Last updated for this workspace on 2026-07-09.
+    </footer>
+  </div>
+</body>
+</html>
