@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Why the Plugin Failed on Another System - Beginner Explanation</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1c2736;
+      --muted: #4f6178;
+      --line: #d8e1ee;
+      --brand: #0d4f8b;
+      --brand-soft: #e8f2fb;
+      --good: #0f7b4a;
+      --good-soft: #e8f7ef;
+      --warn: #9a6200;
+      --warn-soft: #fff4e1;
+      --code-bg: #0d1321;
+      --code-text: #d7e3ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Verdana, sans-serif;
+      background: radial-gradient(circle at top right, #e9f2fd 0%, var(--bg) 40%);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 28px 18px 64px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0d4f8b, #1f6fae);
+      color: #fff;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(13, 79, 139, 0.2);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      margin: 0;
+      opacity: 0.94;
+    }
+
+    h2 {
+      margin-top: 34px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+      color: var(--brand);
+    }
+
+    h3 {
+      margin-top: 24px;
+      color: #124575;
+    }
+
+    .card {
+      margin-top: 14px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: 0 4px 14px rgba(20, 36, 58, 0.05);
+    }
+
+    .note {
+      border-left: 4px solid var(--brand);
+      background: var(--brand-soft);
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+
+    .ok {
+      border-left: 4px solid var(--good);
+      background: var(--good-soft);
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: var(--warn-soft);
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+
+    code {
+      background: #edf3fb;
+      border: 1px solid #dbe5f2;
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-family: Consolas, Menlo, Monaco, monospace;
+      font-size: 0.94em;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border: 1px solid #1f2a44;
+      border-radius: 10px;
+      padding: 14px;
+      overflow-x: auto;
+    }
+
+    pre code {
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: inherit;
+      font-size: 0.91rem;
+    }
+
+    ul, ol { padding-left: 22px; }
+    li { margin: 8px 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0 18px;
+      background: #fff;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 12px;
+    }
+
+    th {
+      background: #eef5fd;
+      color: #153f68;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .flow {
+      background: #f8fbff;
+      border: 1px dashed #b7cbe4;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 10px;
+    }
+
+     .tree {
+       margin-top: 14px;
+       border: 1px solid var(--line);
+       border-radius: 12px;
+       padding: 14px;
+       background: #fbfdff;
+     }
+
+     .tree-step {
+       border: 1px solid #c9d8ea;
+       border-radius: 10px;
+       padding: 10px 12px;
+       background: #fff;
+       margin: 0;
+     }
+
+     .tree-arrow {
+       text-align: center;
+       color: #3f5f81;
+       font-weight: 700;
+       margin: 6px 0;
+     }
+
+     .tree-grid {
+       display: grid;
+       grid-template-columns: 1fr;
+       gap: 10px;
+       margin-top: 8px;
+     }
+
+     @media (min-width: 880px) {
+       .tree-grid {
+         grid-template-columns: 1fr 1fr;
+       }
+     }
+
+    footer {
+      margin-top: 32px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Why the Plugin Failed on Another System</h1>
+      <p class="subtitle">A beginner-friendly explanation of the root cause, diagnosis steps, and the fix.</p>
+    </header>
+
+    <section class="card">
+      <h2>1. Short Answer First</h2>
+      <p>Your plugin was built with machine-specific information, so when moved to another computer it still tried to use your original paths.</p>
+      <div class="warn">
+        <strong>Main runtime issue:</strong> the plugin contained an absolute library search path (RPATH) pointing to your local machine.
+      </div>
+      <div class="note">
+        <strong>Secondary debug issue:</strong> debug symbols included your source folder path. This usually does not break runtime, but it can confuse debugging on another system.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. What Exactly Was Causing the Issue</h2>
+      <h3>A. Runtime Portability Problem (Critical)</h3>
+      <p>
+        The built plugin shared object had an embedded <code>RPATH</code> like:
+        <code>/home/pipeline/development/nuke_ndk_development/nuke_ndk/linux/16.1v2/lib</code>.
+      </p>
+      <p>
+        On another machine, that exact folder does not exist. So the loader may fail to resolve dependent libraries correctly.
+      </p>
+
+      <h3>B. Source Path in Debug Symbols (Non-critical for runtime)</h3>
+      <p>
+        Debug information (DWARF) stored your original source path. On another machine, debugger may try to open files from that old location.
+      </p>
+      <p>
+        This usually affects debugging experience, not plugin loading itself.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>3. How the Issue Was Identified</h2>
+      <p>Two inspections were used:</p>
+
+      <h3>Step 1: Check dynamic section of the plugin</h3>
+      <pre><code>readelf -d build-debug/plugin/Linux/16.1v2/PassThroughLite.so</code></pre>
+      <p>Result showed an absolute RPATH entry to your local path, confirming portability risk.</p>
+
+      <h3>Step 2: Check debug information paths</h3>
+      <pre><code>readelf --debug-dump=info build-debug/plugin/Linux/16.1v2/PassThroughLite.so</code></pre>
+      <p>Result showed <code>DW_AT_name</code> and <code>DW_AT_comp_dir</code> with local absolute directories.</p>
+
+      <div class="flow">
+        <strong>Diagnosis flow:</strong>
+        <ol>
+          <li>Plugin works locally but fails remotely.</li>
+          <li>Inspect runtime metadata for hardcoded paths.</li>
+          <li>Find absolute RPATH in shared object.</li>
+          <li>Inspect DWARF to explain source-path references.</li>
+          <li>Apply CMake portability fix and rebuild.</li>
+          <li>Re-verify metadata after rebuild.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4. Technical Concepts in Simple Words</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Term</th>
+            <th>Simple Meaning</th>
+            <th>Why You Care</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Shared object (.so)</td>
+            <td>A plugin binary loaded by another app (Nuke).</td>
+            <td>This is your deployable artifact.</td>
+          </tr>
+          <tr>
+            <td>RPATH</td>
+            <td>Built-in hint telling Linux where to search libraries.</td>
+            <td>If absolute and machine-specific, portability breaks.</td>
+          </tr>
+          <tr>
+            <td>DWARF debug info</td>
+            <td>Metadata for debugger (files, lines, variables).</td>
+            <td>Can reference old source paths if not remapped.</td>
+          </tr>
+          <tr>
+            <td>Prefix-map flags</td>
+            <td>Compiler options to rewrite path prefixes inside debug info.</td>
+            <td>Prevents leaking local paths and improves portability.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>5. What Was Changed to Fix It</h2>
+      <p>In CMake, two key improvements were added:</p>
+      <ol>
+        <li><strong>Disable RPATH embedding</strong> for portable plugin binaries.</li>
+        <li><strong>Remap debug source paths</strong> to relative paths using compiler prefix-map flags.</li>
+      </ol>
+      <pre><code># Keep plugin binaries portable across machines by avoiding absolute RPATHs.
+set(CMAKE_SKIP_RPATH ON)
+
+option(SANITIZE_DEBUG_PATHS "Remap source paths in debug info to relative paths" ON)
+if(SANITIZE_DEBUG_PATHS AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  add_compile_options(
+    "-ffile-prefix-map=${CMAKE_SOURCE_DIR}=."
+    "-fdebug-prefix-map=${CMAKE_SOURCE_DIR}=."
+  )
+endif()</code></pre>
+      <div class="ok">
+        After rebuild, dynamic section no longer had RPATH/RUNPATH, and debug paths changed to relative values like <code>./src/PassThroughLite.cpp</code>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>6. Why This Works</h2>
+      <ul>
+        <li>No hardcoded local library path means the plugin is not tied to one machine layout.</li>
+        <li>Relative debug paths avoid debugger trying to open files from old absolute directories.</li>
+        <li>You can now move the plugin package to another compatible system more safely.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>7. What Still Must Match on Target System</h2>
+      <div class="warn">
+        Even with path fixes, binary compatibility still matters.
+      </div>
+      <ul>
+        <li>Target machine must have compatible Nuke version.</li>
+        <li>Linux distribution and glibc/libstdc++ compatibility must match enough for your build.</li>
+        <li>Required runtime libraries (for example Nuke libraries) must be available.</li>
+        <li>NUKE_PATH must include the folder containing your plugin .so.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>8. Quick Verification Commands</h2>
+      <h3>On build machine</h3>
+      <pre><code># 1) Confirm there is no RPATH/RUNPATH
+readelf -d build-debug/plugin/Linux/16.1v2/PassThroughLite.so | grep -E 'RPATH|RUNPATH|NEEDED'
+
+# 2) Confirm debug path mapping looks relative
+readelf --debug-dump=info build-debug/plugin/Linux/16.1v2/PassThroughLite.so | grep -E 'DW_AT_name|DW_AT_comp_dir' | head
+
+# 3) Confirm debug symbols exist
+file build-debug/plugin/Linux/16.1v2/PassThroughLite.so</code></pre>
+
+      <h3>On target machine</h3>
+      <pre><code># Optional dependency check
+ldd /path/to/PassThroughLite.so
+
+# Then run Nuke with plugin path available
+export NUKE_PATH="/path/to/plugin/folder:${NUKE_PATH}"</code></pre>
+    </section>
+
+    <section class="card">
+      <h2>9. Beginner Mental Model</h2>
+      <ol>
+        <li>Runtime loading depends on library resolution and ABI compatibility.</li>
+        <li>Debugger behavior depends on symbol info and source path mapping.</li>
+        <li>Fix runtime first, then improve debug convenience.</li>
+      </ol>
+      <div class="note">
+        If plugin fails on another machine, first inspect runtime metadata (RPATH, needed libs), not only source-path references in debug symbols.
+      </div>
+    </section>
+
+     <section class="card">
+       <h2>10. Troubleshooting Decision Tree</h2>
+       <p>Use this quick tree when a plugin works on build machine but fails on target system.</p>
+
+       <div class="tree">
+         <div class="tree-step"><strong>Start:</strong> Plugin does not work on other machine.</div>
+         <div class="tree-arrow">down</div>
+         <div class="tree-step"><strong>Check A:</strong> Does Nuke show your node at all?</div>
+         <div class="tree-arrow">yes / no</div>
+
+         <div class="tree-grid">
+           <div class="tree-step">
+             <strong>If NO (node missing):</strong>
+             <ol>
+               <li>Verify plugin file exists in deployment folder.</li>
+               <li>Verify <code>NUKE_PATH</code> includes that folder.</li>
+               <li>Run Nuke from the same terminal where you exported <code>NUKE_PATH</code>.</li>
+             </ol>
+             <pre><code>ls -l /path/to/plugin/folder
+   export NUKE_PATH="/path/to/plugin/folder:${NUKE_PATH}"
+   # launch Nuke from this shell</code></pre>
+           </div>
+
+           <div class="tree-step">
+             <strong>If YES (node appears but fails):</strong>
+             <ol>
+               <li>Check missing runtime dependencies.</li>
+               <li>Check for machine-specific RPATH/RUNPATH.</li>
+             </ol>
+             <pre><code>ldd /path/to/PassThroughLite.so
+   readelf -d /path/to/PassThroughLite.so | grep -E 'RPATH|RUNPATH|NEEDED'</code></pre>
+           </div>
+         </div>
+
+         <div class="tree-arrow">down</div>
+         <div class="tree-step"><strong>Check B:</strong> Any dependency is "not found"?</div>
+         <div class="tree-arrow">yes / no</div>
+
+         <div class="tree-grid">
+           <div class="tree-step">
+             <strong>If YES:</strong>
+             <ol>
+               <li>Install/provide missing libraries on target system.</li>
+               <li>Confirm Nuke version and platform compatibility.</li>
+               <li>Re-run <code>ldd</code> until all required libs resolve.</li>
+             </ol>
+           </div>
+
+           <div class="tree-step">
+             <strong>If NO but still failing:</strong>
+             <ol>
+               <li>Check ABI mismatch (glibc/libstdc++ differences).</li>
+               <li>Build on an environment close to target system.</li>
+               <li>Test with <code>RelWithDebInfo</code> for deployment-friendly symbols.</li>
+             </ol>
+           </div>
+         </div>
+
+         <div class="tree-arrow">down</div>
+         <div class="tree-step"><strong>Check C:</strong> Debugger opens wrong source path?</div>
+         <div class="tree-arrow">action</div>
+         <div class="tree-step">
+           Rebuild with path remapping flags so debug info uses relative paths.
+           <pre><code>-ffile-prefix-map=/original/source/root=.
+   -fdebug-prefix-map=/original/source/root=.</code></pre>
+         </div>
+       </div>
+
+       <div class="ok">
+         Practical order to fix: <strong>NUKE_PATH and node visibility -> dependencies via ldd -> RPATH/RUNPATH -> ABI compatibility -> debug source mapping</strong>.
+       </div>
+     </section>
+
+    <footer>
+      Document created for this workspace on 2026-07-09.
+    </footer>
+  </div>
+</body>
+</html>

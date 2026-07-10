@@ -5,6 +5,18 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Keep plugin binaries portable across machines by avoiding absolute RPATHs.
+set(CMAKE_SKIP_RPATH ON)
+
+option(SANITIZE_DEBUG_PATHS "Remap source paths in debug info to relative paths" ON)
+if(SANITIZE_DEBUG_PATHS AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  # Prevent absolute local source paths from leaking into DWARF debug entries.
+  add_compile_options(
+    "-ffile-prefix-map=${CMAKE_SOURCE_DIR}=."
+    "-fdebug-prefix-map=${CMAKE_SOURCE_DIR}=."
+  )
+endif()
+
 # Set this to your Nuke install root if not provided by environment.
 # Example path: D:/deps/NUKE_NDK
 set(NUKE_NDK_ROOT "$ENV{NUKE_NDK_ROOT}" CACHE PATH "Path to shared Nuke NDK dependency root")
