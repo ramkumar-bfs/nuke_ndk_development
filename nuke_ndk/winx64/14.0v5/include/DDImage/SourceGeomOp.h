@@ -1,0 +1,209 @@
+//------------------------------------------------------------------------------
+// SourceGeomOp.h
+//
+// Copyright (c) 2021 The Foundry Visionmongers Ltd.  All Rights Reserved.
+//------------------------------------------------------------------------------
+
+#ifndef DDIMAGE_SOURCEGEOMOP_H
+#define DDIMAGE_SOURCEGEOMOP_H
+
+#include "DDImage/GeomOp.h"
+
+namespace DD
+{
+  namespace Image
+  {
+
+    /*! Subclass of GeomOp that supports a ShaderOp input and local transform
+        for ease of object setup.
+
+        Connection to legacy 'Material' class is not allowed, although
+        connection to Iops for simple textures is.
+
+        Do not use this class if there is not at least 1 input for the merge
+        source (ie input 0)! If your class does not need a merge input or material
+        input then subclass directly from GeomOp instead.
+    */
+    class DDImage_API SourceGeomOp : public GeomOp
+    {
+    protected:
+      std::string _primPath;                  //! The root path for created prims
+      fdk::Mat4d  _localTransform;            //!< Local matrix that Axis_Knob fills in
+      Knob*       _transformKnob = nullptr;   //!< The "transform" Axis knob, assigned in the makeTransformKnob() method
+
+      //! Possible types to create for missing parents
+      enum class ParentType {
+        None,
+        Scope,
+        Xform,
+      };
+      ParentType _missingParentType = ParentType::Xform;             //! The type for missing parent prims we create
+
+      //------------------------------------------------------
+
+
+    protected:
+      /*! 
+          The plugin author must at least implement the \a createPrims() method.
+       */
+      class DDImage_API SourceEngine : public GeomOpEngine
+      {
+      protected:
+
+        SourceEngine(Op* parent);
+
+        //!
+        SourceGeomOp* sourceGeomOp() const { return reinterpret_cast<SourceGeomOp*>(_firstOp); }
+
+        /*! Initializes the scene state then calls the subclass createPrims().
+        */
+        void  processScenegraph(usg::GeomSceneContext& context) override;
+
+        /*! Updates the shader attribs for the output frame and view.
+        */
+        void  editComposedStage(usg::GeomSceneContext& context) override;
+
+
+
+        //! Subclasses implement this to create primitives.
+        //! \a context is the scene context
+        //! \a path is the suggested path for the new prims. If an Xform or Scope parent prim was
+        //! created this will be the path of that prim and and subclasses must append a new path
+        //! component for prims they create.
+        virtual void createPrims(usg::GeomSceneContext& context,
+                                 const usg::Path&   path) = 0;
+
+
+        //!< Returns the parent prim created by the engine (if any). You can access this in createPrims().
+        usg::Prim& parentPrim() { return _parentPrim; }
+
+      protected:
+        // Targets are per-engine so they represent layer/stage state
+        usg::GeomStateTarget  materialTopologyTarget; //!< 'material-topology' - affects the define-geometry target
+        usg::GeomStateTarget  materialPropertyTarget; //!< 'material-property' - affects the edit-stage target
+        usg::GeomStateTarget  modifyXformTarget;      //!< 'modify-xform' - affects the modify-values target
+        usg::Token _parentPrimType;                   //!< The type of prim to create for the main prim's parent (default Xform)
+        usg::Prim  _parentPrim;                       //!< The parent prim created by the engine (if any)
+      };
+
+      //------------------------------------------------------
+
+
+    public:
+      //! Constructs a SourceGeomOp with a single texture input.
+      SourceGeomOp(Node*                 node,
+                   GeomOpEngine::Builder engine_ctor);
+
+      const char* Class() const override;
+      const char* node_help() const override;
+
+
+      //------------------------------------------------------
+      // Nuke Node methods
+      //------------------------------------------------------
+
+      //! Return the node input to use for the merge geometry source. Always defaults to input 0.
+      int          mergeInput() const { return 0; }
+
+      /*! Return the node input to use for the material binding.
+          Default is the optional_input() which is normally the last input, or
+          (maximum_inputs() - 1).
+      */
+      virtual int  materialInput() const { return optional_input(); }
+
+      /*! Default is 2: merge input and material input(optional). Subclasses that add
+          additional inputs should keep the merge input at 0 and add inputs starting
+          at 1, taking into account the material input will be last.
+
+          Do not use this class if the subclass will not support merge input 0!
+      */
+      int          minimum_inputs() const override { return 2/*merge + material*/; }
+
+      /*! Default is 2: merge input and material input(optional). Subclasses that add
+          additional inputs should keep the merge input at 0 and add inputs starting
+          at 1, taking into account the material input will be last.
+
+          Do not use this class if the subclass will not support merge input 0!
+      */
+      int          maximum_inputs() const override { return 2/*merge + material*/; }
+
+      /*! Material input is always the last input index, which is
+          (maximum_inputs() - 1), and draws as a stub arrow on the right
+          side of the node.
+          Note - the minimum and maximum input counts must include this
+          optional input in their totals, otherwise the arrow will not
+          appear on the node.
+
+          Do not use this class if the subclass will not support merge input 0!
+      */
+      int          optional_input() const override { return (maximum_inputs() - 1); }
+
+      /*! Allow ShaderOp or Iop *only* for eMaterialInput.
+          Connection to legacy 'Material' class is not allowed!
+      */
+      bool         test_input(int node_input,
+                              Op* op) const override;
+      /*! Disconnected eMaterialInput is assigned a black default constant ShaderOp,
+          matching legacy behavior.
+      */
+      Op*          default_input(int node_input) const override;
+      //! 'img' for input eMaterialInput.
+      const char*  input_label(int   node_input,
+                               char* buffer) const override;
+
+
+      //------------------------------------------------------
+      // Knobs
+      //------------------------------------------------------
+
+      /*! Calls the GeomOp base class with \a is_source_geo=true so that
+          the display knobs are correct for a Source object, then calls
+          addSourceKnobs() to let a subclass add it's own knobs.
+       */
+      void knobs(Knob_Callback) override;
+
+      //! Overload of \a knobs() which allows the primPath to be not created
+      void knobs(Knob_Callback f, bool addPathKnob);
+
+      /*! Subclass specifies knobs that creates source geometry.
+          Base class does nothing.
+      */
+      virtual void addSourceKnobs(Knob_Callback f) {}
+
+      //!
+      int knob_changed(Knob* k) override;
+
+      //!
+      void appendGeomState(DD::Image::Hash& op_hash) override;
+
+      //------------------------------------------------------
+
+
+    protected:
+      //! Make an Axis_Knob called "transform" which will drive the local transform. Calling this
+      //! will cause a parent Xform prim containing the tranform before createPrims is called.
+      //! Plugins can implement their own implementation of this to support custom transform knobs.
+      virtual Knob* makeTransformKnob(Knob_Callback f);
+
+      virtual Knob* getTransformKnob() const { return _transformKnob; }
+
+      /*! Return the parent transformation for the handles.
+
+          The parent transformation is a part of the transformation of the target prim that
+          in the transformation order comes before the actual transformation produced by
+          the Axis_Knob. Depending on the value of the transformation operation order knob,
+          when Prepend, the parent transformation is the concatenated transformation of the
+          parents of the target prim, or when Append, it's the concatenated transformation
+          of the parents and the local transformation of the target prim.
+
+          This is called in build_handles() when the handles are building.
+      */
+      fdk::Mat4d handlesParentTransform(DD::Image::ViewerContext* ctx);
+
+    };
+
+
+  } // namespace Image
+} // namespace DD
+
+#endif
